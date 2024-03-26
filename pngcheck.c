@@ -186,31 +186,31 @@ typedef struct printbuf_state {
 } printbuf_state;
 
 /* int  main (int argc, char *argv[]); */
-void usage (FILE *fpMsg);
+static void usage (FILE *fpMsg);
 #ifndef USE_ZLIB
-void make_crc_table (void);
-ulg  update_crc (ulg crc, uch *buf, int len);
+static void make_crc_table (void);
+static ulg  update_crc (ulg crc, uch *buf, int len);
 #endif
-ulg  getlong (FILE *fp, char *fname, char *where);
-void putlong (FILE *fpOut, ulg ul);
-void init_printbuf_state (printbuf_state *prbuf);
-void print_buffer (printbuf_state *prbuf, uch *buffer, int size, int indent);
-void report_printbuf (printbuf_state *prbuf, char *fname, char *chunkid);
-int  keywordlen (uch *buffer, int maxsize);
-const char *getmonth (int m);
-int  ratio (ulg uc, ulg c);
-ulg  gcf (ulg a, ulg b);
-int  pngcheck (FILE *fp, char *_fname, int searching, FILE *fpOut);
-int  pnginfile (FILE *fp, char *fname, int ipng, int extracting);
-void pngsearch (FILE *fp, char *fname, int extracting);
-int  check_magic (uch *magic, char *fname, int which);
-int  check_chunk_name (char *chunk_name, char *fname);
-int  check_keyword (uch *buffer, int maxsize, int *pKeylen,
-                    char *keyword_name, char *chunkid, char *fname);
-int  check_text (uch *buffer, int maxsize, char *chunkid, char *fname);
-int  check_ascii_float (uch *buffer, int len, char *chunkid, char *fname);
-char const * u2name_helper(unsigned int value, const char **names,
-                           size_t nnames);
+static ulg  getlong (FILE *fp, char *fname, char *where);
+static void putlong (FILE *fpOut, ulg ul);
+static void init_printbuf_state (printbuf_state *prbuf);
+static void print_buffer (printbuf_state *prbuf, uch *buffer, int size, int indent);
+static void report_printbuf (printbuf_state *prbuf, char *fname, char *chunkid);
+static int  keywordlen (uch *buffer, int maxsize);
+static const char *getmonth (int m);
+static int  ratio (ulg uc, ulg c);
+static ulg  gcf (ulg a, ulg b);
+static int  pngcheck (FILE *fp, char *_fname, int searching, FILE *fpOut);
+static int  pnginfile (FILE *fp, char *fname, int ipng, int extracting);
+static void pngsearch (FILE *fp, char *fname, int extracting);
+static int  check_magic (uch *magic, char *fname, int which);
+static int  check_chunk_name (char *chunk_name, char *fname);
+static int  check_keyword (uch *buffer, int maxsize, int *pKeylen,
+                           char *keyword_name, char *chunkid, char *fname);
+static int  check_text (uch *buffer, int maxsize, char *chunkid, char *fname);
+static int  check_ascii_float (uch *buffer, int len, char *chunkid, char *fname);
+static char const * u2name_helper(unsigned int value, const char **names,
+                                  size_t nnames);
 
 #define BS 32000 /* size of read block for CRC calculation (and zlib) */
 
@@ -266,22 +266,22 @@ enum {
 };
 
 /* Command-line flag variables */
-int verbose = 0;	/* print chunk info */
-int quiet = 0;		/* print only error messages */
-int printtext = 0;	/* print tEXt chunks */
-int printpal = 0;	/* print PLTE/tRNS/hIST/sPLT contents */
-int color = 0;		/* print with ANSI colors to spice things up */
-int sevenbit = 0;	/* escape characters >=160 */
-int check_windowbits = 1;	/* more stringent zlib stream-checking */
-int suppress_warnings = 0;	/* don't fuss about ambiguous stuff */
-int search = 0;		/* hunt for PNGs in the file... */
-int extract = 0;	/* ...and extract them to arbitrary file names. */
-int png = 0;		/* it's a PNG */
-int mng = 0;		/* it's a MNG instead of a PNG (won't work in pipe) */
-int jng = 0;		/* it's a JNG */
+static int verbose = 0;	/* print chunk info */
+static int quiet = 0;		/* print only error messages */
+static int printtext = 0;	/* print tEXt chunks */
+static int printpal = 0;	/* print PLTE/tRNS/hIST/sPLT contents */
+static int color = 0;		/* print with ANSI colors to spice things up */
+static int sevenbit = 0;	/* escape characters >=160 */
+static int check_windowbits = 1;	/* more stringent zlib stream-checking */
+static int suppress_warnings = 0;	/* don't fuss about ambiguous stuff */
+static int search = 0;		/* hunt for PNGs in the file... */
+static int extract = 0;		/* ...and extract them to arbitrary file names. */
+static int png = 0;		/* it's a PNG */
+static int mng = 0;		/* it's a MNG instead of a PNG (won't work in pipe) */
+static int jng = 0;		/* it's a JNG */
 
-int global_error = kOK; /* the current error status */
-uch buffer[BS];
+static int global_error = kOK; /* the current error status */
+static uch buffer[BS];
 
 /* what the PNG, MNG and JNG magic numbers should be */
 static const uch good_PNG_magic[8] = {137, 80, 78, 71, 13, 10, 26, 10};
@@ -327,17 +327,17 @@ static const uch latin1_text_discouraged[256] = {
 };
 
 #ifdef USE_ZLIB
-   int first_idat = 1;           /* flag:  is this the first IDAT chunk? */
-   int zlib_error = 0;           /* gets reset in IHDR section; used for IDAT */
-   int check_zlib = 1;           /* validate zlib stream (just IDATs for now) */
-   unsigned zlib_windowbits = 15;
-   uch outbuf[BS];
-   z_stream zstrm;
-   const char **pass_color;
-   const char *color_off;
+   static int first_idat = 1;    /* flag:  is this the first IDAT chunk? */
+   static int zlib_error = 0;    /* gets reset in IHDR section; used for IDAT */
+   static int check_zlib = 1;    /* validate zlib stream (just IDATs for now) */
+   static unsigned zlib_windowbits = 15;
+   static uch outbuf[BS];
+   static z_stream zstrm;
+   static const char **pass_color;
+   static const char *color_off;
 #else
-   ulg crc_table[256];           /* table of CRCs of all 8-bit messages */
-   int crc_table_computed = 0;   /* flag:  has the table been computed? */
+   static ulg crc_table[256];           /* table of CRCs of all 8-bit messages */
+   static int crc_table_computed = 0;   /* flag:  has the table been computed? */
 #endif
 
 
@@ -549,19 +549,19 @@ static const char *magnification_method[] = {		/* MAGN */
   "linear interpolation of alpha, nearest-pixel replication of color"
 };
 
-const char *brief_error_color = COLOR_RED_BOLD "ERROR" COLOR_NORMAL;
-const char *brief_error_plain = "ERROR";
-const char *brief_warn_color = COLOR_YELLOW_BOLD "WARN" COLOR_NORMAL;
-const char *brief_warn_plain = "WARN";
-const char *brief_OK_color = COLOR_GREEN_BOLD "OK" COLOR_NORMAL;
-const char *brief_OK_plain = "OK";
+static const char *brief_error_color = COLOR_RED_BOLD "ERROR" COLOR_NORMAL;
+static const char *brief_error_plain = "ERROR";
+static const char *brief_warn_color = COLOR_YELLOW_BOLD "WARN" COLOR_NORMAL;
+static const char *brief_warn_plain = "WARN";
+static const char *brief_OK_color = COLOR_GREEN_BOLD "OK" COLOR_NORMAL;
+static const char *brief_OK_plain = "OK";
 
-const char *errors_color = COLOR_RED_BOLD "ERRORS DETECTED" COLOR_NORMAL;
-const char *errors_plain = "ERRORS DETECTED";
-const char *warnings_color = COLOR_YELLOW_BOLD "WARNINGS DETECTED" COLOR_NORMAL;
-const char *warnings_plain = "WARNINGS DETECTED";
-const char *no_err_color = COLOR_GREEN_BOLD "No errors detected" COLOR_NORMAL;
-const char *no_err_plain = "No errors detected";
+static const char *errors_color = COLOR_RED_BOLD "ERRORS DETECTED" COLOR_NORMAL;
+static const char *errors_plain = "ERRORS DETECTED";
+static const char *warnings_color = COLOR_YELLOW_BOLD "WARNINGS DETECTED" COLOR_NORMAL;
+static const char *warnings_plain = "WARNINGS DETECTED";
+static const char *no_err_color = COLOR_GREEN_BOLD "No errors detected" COLOR_NORMAL;
+static const char *no_err_plain = "No errors detected";
 
 
 
@@ -753,7 +753,7 @@ int main(int argc, char *argv[])
 
 
 /* GRR 20061203 */
-void usage(FILE *fpMsg)
+static void usage(FILE *fpMsg)
 {
   fprintf(fpMsg, "PNGcheck, version " VERSION ",\n"
     "   by Alexander Lehmann, Andreas Dilger, Greg Roelofs and Lucy Phipps.\n"
@@ -819,7 +819,7 @@ void usage(FILE *fpMsg)
 #  define CRCINIT (CRCCOMPL(0))
 
 /* make the table for a fast crc */
-void make_crc_table(void)
+static void make_crc_table(void)
 {
   int n;
 
@@ -842,7 +842,7 @@ void make_crc_table(void)
    initialized to all 1's, and the transmitted value is the 1's complement
    of the final running crc. */
 
-ulg update_crc(ulg crc, uch *buf, int len)
+static ulg update_crc(ulg crc, uch *buf, int len)
 {
   ulg c = crc;
   uch *p = buf;
@@ -862,7 +862,7 @@ ulg update_crc(ulg crc, uch *buf, int len)
 
 
 
-ulg getlong(FILE *fp, char *fname, char *where)
+static ulg getlong(FILE *fp, char *fname, char *where)
 {
   ulg res = 0;
   int j;
@@ -885,7 +885,7 @@ ulg getlong(FILE *fp, char *fname, char *where)
 
 
 /* output a long when copying an embedded PNG out of a file. */
-void putlong(FILE *fpOut, ulg ul)
+static void putlong(FILE *fpOut, ulg ul)
 {
   putc(ul >> 24, fpOut);
   putc(ul >> 16, fpOut);
@@ -899,7 +899,7 @@ void putlong(FILE *fpOut, ulg ul)
    chars other than whitespace, since this may open ways of attack by so-
    called ANSI-bombs */
 
-void init_printbuf_state(printbuf_state *prbuf)
+static void init_printbuf_state(printbuf_state *prbuf)
 {
   prbuf->cr = 0;
   prbuf->lf = 0;
@@ -911,7 +911,7 @@ void init_printbuf_state(printbuf_state *prbuf)
 
 
 /* GRR EBCDIC WARNING */
-void print_buffer(printbuf_state *prbuf, uch *buf, int size, int indent)
+static void print_buffer(printbuf_state *prbuf, uch *buf, int size, int indent)
 {
   int linewidth = 79, ctg;
   const char *term;
@@ -961,7 +961,7 @@ void print_buffer(printbuf_state *prbuf, uch *buf, int size, int indent)
 
 
 
-void report_printbuf(printbuf_state *prbuf, char *fname, char *chunkid)
+static void report_printbuf(printbuf_state *prbuf, char *fname, char *chunkid)
 {
   if (prbuf->cr) {
     if (prbuf->lf) {
@@ -987,7 +987,7 @@ void report_printbuf(printbuf_state *prbuf, char *fname, char *chunkid)
 
 
 
-int keywordlen(uch *buf, int maxsize)
+static int keywordlen(uch *buf, int maxsize)
 {
   int j = 0;
 
@@ -999,7 +999,7 @@ int keywordlen(uch *buf, int maxsize)
 
 
 
-const char *getmonth(int m)
+static const char *getmonth(int m)
 {
   static const char *month[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -1011,7 +1011,7 @@ const char *getmonth(int m)
 
 
 
-int ratio(ulg uc, ulg c)   /* GRR 19970621:  swiped from UnZip 5.31 list.c */
+static int ratio(ulg uc, ulg c)   /* GRR 19970621:  swiped from UnZip 5.31 list.c */
 {
     ulg denom;
 
@@ -1036,7 +1036,7 @@ int ratio(ulg uc, ulg c)   /* GRR 19970621:  swiped from UnZip 5.31 list.c */
  *                common factor of two positive integers.
  *                (see http://mathworld.wolfram.com/EuclideanAlgorithm.html)
  */
-ulg gcf(ulg a, ulg b)
+static ulg gcf(ulg a, ulg b)
 {
     ulg r;
 
@@ -1062,19 +1062,19 @@ typedef struct inflate_buffer {
   uch                    buffer[16];
 } inflate_buffer;
 
-void inflate_buffer_delete(inflate_buffer **ptr) {
+static void inflate_buffer_delete(inflate_buffer **ptr) {
   if ((*ptr)->next)
     inflate_buffer_delete(&(*ptr)->next);
   free(*ptr);
   *ptr = 0;
 }
 
-inflate_buffer **inflate_buffer_end(inflate_buffer **ptr) {
+static inflate_buffer **inflate_buffer_end(inflate_buffer **ptr) {
   while (*ptr) ptr = &(*ptr)->next;
   return ptr;
 }
 
-inflate_buffer *inflate_buffer_add(inflate_buffer **ptr,
+static inflate_buffer *inflate_buffer_add(inflate_buffer **ptr,
     const uch *bytes, uInt size) {
   inflate_buffer *add = malloc((sizeof *add)+size-16);
   if (add) {
@@ -1086,7 +1086,7 @@ inflate_buffer *inflate_buffer_add(inflate_buffer **ptr,
   return add;
 }
 
-size_t inflate_buffer_length(inflate_buffer *ptr) {
+static size_t inflate_buffer_length(inflate_buffer *ptr) {
   if (ptr)
     return inflate_buffer_length(ptr->next) + ptr->size;
   return 0;
@@ -1099,7 +1099,7 @@ typedef struct inflate_engine {
   uch             temp[1024];
 } inflate_engine;
 
-int inflate_engine_init(inflate_engine *e) {
+static int inflate_engine_init(inflate_engine *e) {
   int rc;
   memset(e, 0, sizeof *e);
   rc = inflateInit(&e->zlib);
@@ -1108,12 +1108,12 @@ int inflate_engine_init(inflate_engine *e) {
   return rc;
 }
 
-void inflate_engine_destroy(inflate_engine *e) {
+static void inflate_engine_destroy(inflate_engine *e) {
   if (e->list) inflate_buffer_delete(&e->list);
   if (e->zlib.opaque) inflateEnd(&e->zlib);
 }
 
-void inflate_engine_stash(inflate_engine *e) {
+static void inflate_engine_stash(inflate_engine *e) {
   if (e->zlib.next_out > e->temp && !e->oom) {
     if (!inflate_buffer_add(&e->list, e->temp, e->zlib.next_out - e->temp)) {
       inflate_buffer_delete(&e->list);
@@ -1124,11 +1124,11 @@ void inflate_engine_stash(inflate_engine *e) {
   e->zlib.avail_out = sizeof e->temp;
 }
 
-size_t inflate_engine_length(inflate_engine *e) {
+static size_t inflate_engine_length(inflate_engine *e) {
   return inflate_buffer_length(e->list);
 }
 
-int inflate_engine_process(inflate_engine *e, uch *bytes, size_t avail_in,
+static int inflate_engine_process(inflate_engine *e, uch *bytes, size_t avail_in,
     const char *chunkid, const char *fname, int end) {
   int rc, stashed;
   e->zlib.next_in = bytes;
@@ -1178,7 +1178,7 @@ int inflate_engine_process(inflate_engine *e, uch *bytes, size_t avail_in,
   }
 }
 
-void inflate_engine_print(printbuf_state *prbuf, inflate_engine *e, int indent)
+static void inflate_engine_print(printbuf_state *prbuf, inflate_engine *e, int indent)
 {
   inflate_buffer *buf = e->list;
 
@@ -1188,7 +1188,7 @@ void inflate_engine_print(printbuf_state *prbuf, inflate_engine *e, int indent)
   }
 }
 
-int inflate_engine_check_text(inflate_engine *e, char *chunkid, char *fname) {
+static int inflate_engine_check_text(inflate_engine *e, char *chunkid, char *fname) {
   inflate_buffer *buf = e->list;
 
   while (buf) {
@@ -1202,7 +1202,7 @@ int inflate_engine_check_text(inflate_engine *e, char *chunkid, char *fname) {
 
 
 
-int pngcheck(FILE *fp, char *fname, int searching, FILE *fpOut)
+static int pngcheck(FILE *fp, char *fname, int searching, FILE *fpOut)
 {
   int i, j;
   long sz;  /* FIXME:  should be ulg (not using negative values as flags...) */
@@ -5184,7 +5184,7 @@ FIXME: make sure bit 31 (0x80000000) is 0
 
 
 
-int pnginfile(FILE *fp, char *fname, int ipng, int extracting)
+static int pnginfile(FILE *fp, char *fname, int ipng, int extracting)
 {
   char name[1024], *szdot;
   int err = kOK;
@@ -5231,7 +5231,7 @@ int pnginfile(FILE *fp, char *fname, int ipng, int extracting)
 
 
 
-void pngsearch(FILE *fp, char *fname, int extracting)
+static void pngsearch(FILE *fp, char *fname, int extracting)
 {
   /* Go through the file looking for a PNG magic number; if one is
      found, check the data to see if it is a PNG and validate the
@@ -5286,7 +5286,7 @@ void pngsearch(FILE *fp, char *fname, int extracting)
  * without any restrictions.
  *
  */
-int check_magic(uch *magic, char *fname, int which)
+static int check_magic(uch *magic, char *fname, int which)
 {
   int i;
   const uch *good_magic = (which == 0)? good_PNG_magic :
@@ -5347,7 +5347,7 @@ int check_magic(uch *magic, char *fname, int which)
 
 
 /* GRR 20061203:  now EBCDIC-safe */
-int check_chunk_name(char *chunk_name, char *fname)
+static int check_chunk_name(char *chunk_name, char *fname)
 {
   if (isASCIIalpha((int)(uch)chunk_name[0]) &&
       isASCIIalpha((int)(uch)chunk_name[1]) &&
@@ -5368,7 +5368,7 @@ int check_chunk_name(char *chunk_name, char *fname)
 /* caller must do set_err(kMinorError) based on return value (0 == OK) */
 /* keyword_name is "keyword" for most chunks, but it can instead be "name" or
  * "identifier" or whatever makes sense for the chunk in question */
-int check_keyword(uch *buffer, int maxsize, int *pKeylen,
+static int check_keyword(uch *buffer, int maxsize, int *pKeylen,
                   char *keyword_name, char *chunkid, char *fname)
 {
   int j, prev_space = 0;
@@ -5429,7 +5429,7 @@ int check_keyword(uch *buffer, int maxsize, int *pKeylen,
 
 /* GRR 20070707 */
 /* caller must do set_err(kMinorError) based on return value (0 == OK) */
-int check_text(uch *buffer, int maxsize, char *chunkid, char *fname)
+static int check_text(uch *buffer, int maxsize, char *chunkid, char *fname)
 {
   int j, ctrlwarn = verbose? 1 : 0;  /* print message once, only if verbose */
 
@@ -5452,7 +5452,7 @@ int check_text(uch *buffer, int maxsize, char *chunkid, char *fname)
 
 /* GRR 20061203 (used only for sCAL) */
 /* caller must do set_err(kMinorError) based on return value (0 == OK) */
-int check_ascii_float(uch *buffer, int len, char *chunkid, char *fname)
+static int check_ascii_float(uch *buffer, int len, char *chunkid, char *fname)
 {
   uch *qq = buffer, *bufEnd = buffer + len;
   int /* have_sign = 0, */ have_integer = 0, have_dot = 0, have_fraction = 0;
@@ -5556,7 +5556,7 @@ int check_ascii_float(uch *buffer, int len, char *chunkid, char *fname)
   return rc;
 }
 
-char const * u2name_helper(unsigned int value, const char **names,
+static char const * u2name_helper(unsigned int value, const char **names,
                            size_t nnames) {
   return (value < nnames) ? names[value] : inv;
 }
